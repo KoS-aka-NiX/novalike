@@ -1,0 +1,26 @@
+openapi: 3.1.0
+info:
+  title: NovaLike API
+  version: 0.1.0
+  description: API communautaire NovaLike pour intégration GPT et automatisation Discord.
+servers:
+  - url: https://novalike.wanalike.com
+paths:
+  /api/health.php:
+    get:
+      operationId: getHealth
+      summary: Vérifie l’état de NovaLike
+      responses:
+        '200':
+          description: API opérationnelle
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
