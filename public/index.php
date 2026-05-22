@@ -1,5 +1,5 @@
 <?php
-$version = '0.2.3';
+$version = '0.3.0';
 $status = 'online';
 $currentYear = date('Y');
 ?>
@@ -25,16 +25,16 @@ $currentYear = date('Y');
 <div class="background-glow"></div>
 <header class="site-header">
     <nav class="ecosystem-nav glassy">
-        <a href="/" class="brand-block" aria-label="NovaLike accueil">
+        <a href="/" class="brand-block ajax-link" data-page="home" aria-label="NovaLike accueil">
             <img src="https://cdn.wanalike.com/assets/v1/brands/novalike/logo/logo.webp" class="brand-logo" alt="NovaLike">
             <span class="brand-copy"><strong>NovaLike</strong><small>IA communautaire</small></span>
         </a>
         <button class="nav-toggle" type="button" aria-label="Ouvrir le menu"><i class="fa-solid fa-bars"></i></button>
         <div class="nav-menu">
-            <a href="#top" class="nav-link active"><i class="fa-solid fa-house"></i> Accueil</a>
-            <a href="#features" class="nav-link"><i class="fa-solid fa-sparkles"></i> Fonctions</a>
-            <a href="#integrations" class="nav-link"><i class="fa-solid fa-network-wired"></i> Écosystème</a>
-            <a href="#community" class="nav-link"><i class="fa-brands fa-discord"></i> Communauté</a>
+            <a href="/" class="nav-link ajax-link active" data-page="home"><i class="fa-solid fa-house"></i> Accueil</a>
+            <a href="/features" class="nav-link ajax-link" data-page="features"><i class="fa-solid fa-wand-magic-sparkles"></i> Fonctionnalités</a>
+            <a href="/ecosystem" class="nav-link ajax-link" data-page="ecosystem"><i class="fa-solid fa-network-wired"></i> Écosystème</a>
+            <a href="/community" class="nav-link ajax-link" data-page="community"><i class="fa-brands fa-discord"></i> Communauté</a>
         </div>
         <div class="nav-actions">
             <a href="/api/health.php" class="status-pill"><span></span> API <?= htmlspecialchars($status) ?></a>
@@ -42,38 +42,7 @@ $currentYear = date('Y');
         </div>
     </nav>
 </header>
-<main id="top" class="container">
-<section class="hero glassy">
-    <div class="hero-content">
-        <div class="badge">✨ IA communautaire officielle WanaLike</div>
-        <h1>NovaLike</h1>
-        <p class="lead">Accueil, animation, assistance et présence intelligente pour garder la communauté WanaLike vivante.</p>
-        <div class="actions">
-            <a href="#features" class="button primary"><i class="fa-solid fa-sparkles"></i> Découvrir NovaLike</a>
-            <a href="https://wanalike.com" class="button secondary"><i class="fa-solid fa-users"></i> Rejoindre WanaLike</a>
-        </div>
-    </div>
-    <div class="hero-image"><img src="https://cdn.wanalike.com/assets/v1/brands/novalike/logo/banner.webp" alt="NovaLike Banner"></div>
-</section>
-<section id="features" class="cards-grid">
-    <article class="feature-card glassy"><i class="fa-solid fa-user-group"></i><h2>Accueille</h2><p>Guide les nouveaux membres dès leur arrivée sans friction inutile.</p></article>
-    <article class="feature-card glassy"><i class="fa-solid fa-comments"></i><h2>Anime</h2><p>Relance intelligemment les salons et maintient une présence active.</p></article>
-    <article class="feature-card glassy"><i class="fa-solid fa-headset"></i><h2>Assiste</h2><p>Répond aux questions et oriente vers les bons espaces.</p></article>
-</section>
-<section id="integrations" class="integrations glassy">
-    <div><span class="section-kicker">Intégrations futures</span><h2>Écosystème WanaLike</h2></div>
-    <div class="integration-grid">
-        <a href="https://fm.wanalike.com"><i class="fa-solid fa-radio"></i> WanaFM</a>
-        <a href="https://wanachess.wanalike.com"><i class="fa-solid fa-chess-knight"></i> WanaChess</a>
-        <a href="https://wanalike.com"><i class="fa-brands fa-discord"></i> Discord</a>
-        <a href="#"><i class="fa-solid fa-server"></i> XtraVerseRP</a>
-    </div>
-</section>
-<section id="community" class="community-strip glassy">
-    <div><span class="section-kicker">Communauté</span><h2>Une présence IA pensée pour Discord</h2><p>NovaLike accompagne les nouveaux, garde le serveur lisible et aide l’équipe à maintenir une ambiance active.</p></div>
-    <a href="https://wanalike.com" class="button primary"><i class="fa-brands fa-discord"></i> Accéder au hub</a>
-</section>
-</main>
+<main id="app-content" class="container ajax-content" aria-live="polite"></main>
 <footer class="site-footer glassy">
     <div class="footer-brand">
         <img src="https://cdn.wanalike.com/assets/v1/brands/novalike/logo/logo.webp" alt="NovaLike">
@@ -82,9 +51,9 @@ $currentYear = date('Y');
     <div class="footer-columns">
         <div>
             <h3><i class="fa-solid fa-compass"></i> Navigation</h3>
-            <a href="#top"><i class="fa-solid fa-house"></i> Accueil</a>
-            <a href="#features"><i class="fa-solid fa-sparkles"></i> Fonctionnalités</a>
-            <a href="#integrations"><i class="fa-solid fa-network-wired"></i> Écosystème</a>
+            <a href="/" class="ajax-link" data-page="home"><i class="fa-solid fa-house"></i> Accueil</a>
+            <a href="/features" class="ajax-link" data-page="features"><i class="fa-solid fa-wand-magic-sparkles"></i> Fonctionnalités</a>
+            <a href="/ecosystem" class="ajax-link" data-page="ecosystem"><i class="fa-solid fa-network-wired"></i> Écosystème</a>
         </div>
         <div>
             <h3><i class="fa-solid fa-code"></i> Technique</h3>
@@ -103,11 +72,6 @@ $currentYear = date('Y');
         <span>© 2015-<?= htmlspecialchars($currentYear) ?> Hardcodé par KoS_ avec ❤️ pour WanaLike — NovaLike est une marque de WanaLike.</span>
     </div>
 </footer>
-<script>
-$(function(){
-    $('.nav-toggle').on('click',function(){ $('.nav-menu, .nav-actions').toggleClass('open'); });
-    $('a[href^="#"]').on('click',function(e){ const target=$($(this).attr('href')); if(target.length){ e.preventDefault(); $('html, body').animate({scrollTop:target.offset().top-105},350); $('.nav-menu, .nav-actions').removeClass('open'); }});
-});
-</script>
+<script src="/assets/js/app.js"></script>
 </body>
 </html>
