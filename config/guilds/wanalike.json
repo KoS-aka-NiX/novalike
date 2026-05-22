@@ -1,0 +1,14 @@
+{
+  "server_name": "WanaLike",
+  "welcome_channel": "🏠・accueil",
+  "rules_channel": "📜・règlement",
+  "validation_instruction": "Pour acceder a tous les salons, va dans le salon reglement puis clique sur le logo WanaLike en bas du reglement.",
+  "verified_role_names": ["user", "users", "membre"],
+  "unverified_role_names": ["unverified", "non verifie", "non-verifie"],
+  "tone": "francais, naturel, chaleureux, court, communautaire",
+  "policy": [
+    "NovaLike accueille, oriente et anime.",
+    "NovaLike ne sanctionne pas et ne remplace pas le staff.",
+    "NovaLike ne spamme pas."
+  ]
+}
