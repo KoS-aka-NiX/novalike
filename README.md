@@ -2,36 +2,53 @@
 
 NovaLike est l’IA communautaire de l’écosystème WanaLike.
 
-Objectifs :
-- accueil intelligent des nouveaux membres
-- animation communautaire
-- assistance Discord / IRC / FiveM
-- présence sociale automatisée
-- aide à la rétention des utilisateurs
-- interaction naturelle et contextuelle
+## Fonctionnalités MVP
 
-## Stack prévue
+- accueil des nouveaux membres
+- message automatique de bienvenue
+- présence Discord personnalisée
+- commandes de base
+- architecture prête pour l’IA
+
+## Stack
 
 - Python
 - discord.py
-- FastAPI
-- OpenAI API
-- Docker
-- PostgreSQL / Redis (plus tard)
+- python-dotenv
 
-## Architecture
+## Installation
 
-Discord ↔ NovaLike Bot ↔ API ↔ IA
+```bash
+git clone https://github.com/KoS-aka-NiX/novalike.git
+cd novalike
 
-## Modules prévus
+python3 -m venv venv
+source venv/bin/activate
 
-- accueil intelligent
-- détection ghost users
-- relance salons
-- animation vocale
-- assistant communautaire
-- intégration WanaLike
-- WanaFM / WanaChess / XtraVerseRP
+pip install -r requirements.txt
+```
+
+## Configuration
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Ajouter le token Discord dans `.env`
+
+## Lancement
+
+```bash
+python3 bot/main.py
+```
+
+## Commandes
+
+```txt
+!ping
+!nova
+```
 
 ## Vision
 
