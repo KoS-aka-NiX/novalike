@@ -1,15 +1,15 @@
 openapi: 3.1.0
 info:
   title: NovaLike API
-  version: 0.1.0
-  description: API communautaire NovaLike pour intégration GPT et automatisation Discord.
+  version: 0.2.0
+  description: API communautaire NovaLike pour connecter GPT, FastAPI et Discord.
 servers:
-  - url: https://novalike.wanalike.com
+  - url: https://nova.wanalike.com
 paths:
-  /api/health.php:
+  /health:
     get:
-      operationId: getHealth
-      summary: Vérifie l’état de NovaLike
+      operationId: getNovaLikeHealth
+      summary: Vérifie l’état de l’API NovaLike
       responses:
         '200':
           description: API opérationnelle
@@ -22,5 +22,49 @@ paths:
                     type: string
                   status:
                     type: string
-                  timestamp:
+                  queue_size:
+                    type: integer
+  /gpt/send-message:
+    post:
+      operationId: sendDiscordMessage
+      summary: Envoie un message dans le salon Discord configuré via NovaLike
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: Message à envoyer sur Discord.
+                channel_id:
+                  type: integer
+                  nullable: true
+                  description: ID optionnel du salon Discord. Si absent, NovaLike utilise le salon par défaut.
+      responses:
+        '200':
+          description: Message ajouté à la queue NovaLike
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
                     type: string
+                  message:
+                    type: string
+                  queue_size:
+                    type: integer
+        '401':
+          description: Token API invalide
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Token
