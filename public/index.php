@@ -1,5 +1,5 @@
 <?php
-$version = '0.2.1';
+$version = '0.2.2';
 $status = 'online';
 ?>
 <!doctype html>
@@ -33,7 +33,7 @@ $status = 'online';
             <a href="#top" class="nav-link active"><i class="fa-solid fa-house"></i> Accueil</a>
             <a href="#features" class="nav-link"><i class="fa-solid fa-sparkles"></i> Fonctions</a>
             <a href="#integrations" class="nav-link"><i class="fa-solid fa-network-wired"></i> Écosystème</a>
-            <a href="/openapi/novalike-actions.yaml" class="nav-link"><i class="fa-solid fa-code"></i> OpenAPI</a>
+            <a href="#community" class="nav-link"><i class="fa-brands fa-discord"></i> Communauté</a>
         </div>
         <div class="nav-actions">
             <a href="/api/health.php" class="status-pill"><span></span> API <?= htmlspecialchars($status) ?></a>
@@ -48,8 +48,8 @@ $status = 'online';
         <h1>NovaLike</h1>
         <p class="lead">Accueil, animation, assistance et présence intelligente pour garder la communauté WanaLike vivante.</p>
         <div class="actions">
-            <a href="/api/health.php" class="button primary"><i class="fa-solid fa-heart-pulse"></i> API Health</a>
-            <a href="/openapi/novalike-actions.yaml" class="button secondary"><i class="fa-solid fa-robot"></i> OpenAPI GPT</a>
+            <a href="#features" class="button primary"><i class="fa-solid fa-sparkles"></i> Découvrir NovaLike</a>
+            <a href="https://wanalike.com" class="button secondary"><i class="fa-solid fa-users"></i> Rejoindre WanaLike</a>
         </div>
     </div>
     <div class="hero-image"><img src="https://cdn.wanalike.com/assets/v1/brands/novalike/logo/banner.webp" alt="NovaLike Banner"></div>
@@ -68,6 +68,10 @@ $status = 'online';
         <a href="#"><i class="fa-solid fa-server"></i> XtraVerseRP</a>
     </div>
 </section>
+<section id="community" class="community-strip glassy">
+    <div><span class="section-kicker">Communauté</span><h2>Une présence IA pensée pour Discord</h2><p>NovaLike accompagne les nouveaux, garde le serveur lisible et aide l’équipe à maintenir une ambiance active.</p></div>
+    <a href="https://wanalike.com" class="button primary"><i class="fa-brands fa-discord"></i> Accéder au hub</a>
+</section>
 </main>
 <footer class="site-footer glassy">
     <div class="footer-brand">
@@ -76,7 +80,7 @@ $status = 'online';
     </div>
     <div class="footer-columns">
         <div><h3>Navigation</h3><a href="#top">Accueil</a><a href="#features">Fonctionnalités</a><a href="#integrations">Écosystème</a></div>
-        <div><h3>Ressources</h3><a href="/api/health.php">API Health</a><a href="/openapi/novalike-actions.yaml">OpenAPI GPT</a></div>
+        <div><h3>Technique</h3><a href="/api/health.php">API Health</a><a href="/openapi/novalike-actions.yaml">OpenAPI GPT</a></div>
         <div><h3>WanaLike</h3><a href="https://wanalike.com">Hub</a><a href="https://fm.wanalike.com">WanaFM</a><a href="https://wanachess.wanalike.com">WanaChess</a></div>
     </div>
     <div class="footer-bottom"><span>NovaLike v<?= htmlspecialchars($version) ?> · statut <?= htmlspecialchars($status) ?></span><span>© 2026 WanaLike · Créé par KoS_</span></div>
@@ -84,7 +88,7 @@ $status = 'online';
 <script>
 $(function(){
     $('.nav-toggle').on('click',function(){ $('.nav-menu, .nav-actions').toggleClass('open'); });
-    $('a[href^="#"]').on('click',function(e){ const target=$($(this).attr('href')); if(target.length){ e.preventDefault(); $('html, body').animate({scrollTop:target.offset().top-110},350); $('.nav-menu, .nav-actions').removeClass('open'); }});
+    $('a[href^="#"]').on('click',function(e){ const target=$($(this).attr('href')); if(target.length){ e.preventDefault(); $('html, body').animate({scrollTop:target.offset().top-105},350); $('.nav-menu, .nav-actions').removeClass('open'); }});
 });
 </script>
 </body>
