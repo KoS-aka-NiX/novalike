@@ -1,4 +1,5 @@
 import os
+import asyncio
 import discord
 import httpx
 from discord.ext import commands
@@ -10,12 +11,46 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 PREFIX = os.getenv('COMMAND_PREFIX', '!')
 STATUS = os.getenv('BOT_STATUS', 'NovaLike is online')
 API_BASE_URL = os.getenv('API_BASE_URL', 'http://127.0.0.1:8000')
+API_TOKEN = os.getenv('NOVALIKE_API_TOKEN', '')
+DEFAULT_CHANNEL_ID = os.getenv('DISCORD_DEFAULT_CHANNEL_ID')
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
+
+
+async def poll_api_messages():
+    await bot.wait_until_ready()
+
+    while not bot.is_closed():
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                response = await client.get(
+                    f'{API_BASE_URL}/bot/pending-messages',
+                    headers={
+                        'X-API-Token': API_TOKEN
+                    }
+                )
+
+                data = response.json()
+
+                for item in data.get('messages', []):
+                    channel_id = item.get('channel_id') or DEFAULT_CHANNEL_ID
+
+                    if not channel_id:
+                        continue
+
+                    channel = bot.get_channel(int(channel_id))
+
+                    if channel:
+                        await channel.send(item.get('message', '👋'))
+
+        except Exception as e:
+            print(f'[NovaLike] Polling error: {e}')
+
+        await asyncio.sleep(5)
 
 
 @bot.event
@@ -28,6 +63,8 @@ async def on_ready():
     )
 
     await bot.change_presence(activity=activity)
+
+    bot.loop.create_task(poll_api_messages())
 
 
 @bot.event
