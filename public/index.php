@@ -1,6 +1,7 @@
 <?php
-$version = '0.2.2';
+$version = '0.2.3';
 $status = 'online';
+$currentYear = date('Y');
 ?>
 <!doctype html>
 <html lang="fr">
@@ -79,11 +80,28 @@ $status = 'online';
         <div><strong>NovaLike</strong><p>L’IA communautaire qui garde WanaLike vivant, humain et actif.</p></div>
     </div>
     <div class="footer-columns">
-        <div><h3>Navigation</h3><a href="#top">Accueil</a><a href="#features">Fonctionnalités</a><a href="#integrations">Écosystème</a></div>
-        <div><h3>Technique</h3><a href="/api/health.php">API Health</a><a href="/openapi/novalike-actions.yaml">OpenAPI GPT</a></div>
-        <div><h3>WanaLike</h3><a href="https://wanalike.com">Hub</a><a href="https://fm.wanalike.com">WanaFM</a><a href="https://wanachess.wanalike.com">WanaChess</a></div>
+        <div>
+            <h3><i class="fa-solid fa-compass"></i> Navigation</h3>
+            <a href="#top"><i class="fa-solid fa-house"></i> Accueil</a>
+            <a href="#features"><i class="fa-solid fa-sparkles"></i> Fonctionnalités</a>
+            <a href="#integrations"><i class="fa-solid fa-network-wired"></i> Écosystème</a>
+        </div>
+        <div>
+            <h3><i class="fa-solid fa-code"></i> Technique</h3>
+            <a href="/api/health.php"><i class="fa-solid fa-heart-pulse"></i> API Health</a>
+            <a href="/openapi/novalike-actions.yaml"><i class="fa-solid fa-file-code"></i> OpenAPI GPT</a>
+        </div>
+        <div>
+            <h3><i class="fa-solid fa-globe"></i> WanaLike</h3>
+            <a href="https://wanalike.com"><i class="fa-solid fa-earth-europe"></i> Hub</a>
+            <a href="https://fm.wanalike.com"><i class="fa-solid fa-radio"></i> WanaFM</a>
+            <a href="https://wanachess.wanalike.com"><i class="fa-solid fa-chess-knight"></i> WanaChess</a>
+        </div>
     </div>
-    <div class="footer-bottom"><span>NovaLike v<?= htmlspecialchars($version) ?> · statut <?= htmlspecialchars($status) ?></span><span>© 2026 WanaLike · Créé par KoS_</span></div>
+    <div class="footer-bottom">
+        <span><i class="fa-solid fa-microchip"></i> NovaLike v<?= htmlspecialchars($version) ?> · statut <?= htmlspecialchars($status) ?></span>
+        <span>© 2015-<?= htmlspecialchars($currentYear) ?> Hardcodé par KoS_ avec ❤️ pour WanaLike — NovaLike est une marque de WanaLike.</span>
+    </div>
 </footer>
 <script>
 $(function(){
