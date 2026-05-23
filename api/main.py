@@ -7,10 +7,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_TOKEN = os.getenv('NOVALIKE_API_TOKEN', '')
+WANALIKE_MARK = chr(60) + ':wanalike:1443556453918048276' + chr(62)
 
 app = FastAPI(
     title='NovaLike API',
-    version='0.3.0',
+    version='0.3.1',
     description='API communautaire NovaLike'
 )
 
@@ -40,11 +41,7 @@ class GPTPublicMessage(BaseModel):
 
 @app.get('/health')
 async def health():
-    return {
-        'name': 'NovaLike API',
-        'status': 'online',
-        'queue_size': len(message_queue)
-    }
+    return {'name': 'NovaLike API', 'status': 'online', 'queue_size': len(message_queue)}
 
 
 def normalize(value: str | None) -> str:
@@ -62,19 +59,14 @@ def should_reply(payload: DiscordMessage) -> bool:
 
     if payload.mentioned:
         return True
-
     if content.startswith('nova') or content.startswith('novalike'):
         return True
-
     if 'accueil' in channel and has_unverified_role(payload.roles):
         return True
-
     if 'reglement' in channel or 'règlement' in channel:
         return True
-
     if 'je vois pas' in content or 'pas les salons' in content or 'pas acces' in content or 'pas accès' in content:
         return True
-
     return False
 
 
@@ -84,95 +76,53 @@ def contextual_reply(payload: DiscordMessage) -> str:
     unverified = has_unverified_role(payload.roles)
 
     if unverified or 'pas les salons' in content or 'pas acces' in content or 'pas accès' in content:
-        return "👋 Bienvenue ! Pour débloquer tous les salons, va dans #📜・règlement puis clique sur le logo WanaLike en bas du règlement. Après validation, tu verras le reste du serveur."
+        return f"👋 Bienvenue ! Pour débloquer tous les salons, va dans #📜・règlement puis clique sur {WANALIKE_MARK} en bas du règlement. Après validation, tu verras le reste du serveur."
 
     if 'reglement' in channel or 'règlement' in channel:
-        return "Pour valider ton accès, lis le règlement puis clique sur le logo WanaLike en bas du message. C’est ce qui débloque les autres salons 🙂"
+        return f"Pour valider ton accès, lis le règlement puis clique sur {WANALIKE_MARK} en bas du message. C’est ce qui débloque les autres salons 🙂"
 
     if 'radio' in channel:
-        return "🎧 Bienvenue côté WanaFM ! Tu peux discuter musique, demander des sons ou suivre ce qui passe sur la radio."
-
+        return '🎧 Bienvenue côté WanaFM ! Tu peux discuter musique, demander des sons ou suivre ce qui passe sur la radio.'
     if 'suggestions' in channel:
-        return "💡 Bonne idée. Si tu peux, détaille le besoin, l’objectif et l’impact attendu : ça aidera le staff à trier proprement."
-
+        return '💡 Bonne idée. Si tu peux, détaille le besoin, l’objectif et l’impact attendu : ça aidera le staff à trier proprement.'
     if 'accueil' in channel:
-        return "👋 Bienvenue sur WanaLike ! Tu viens plutôt pour la radio, le dev, le gaming ou juste chiller ?"
-
-    return "👋 Je suis NovaLike. Je peux t’aider à te repérer, t’orienter vers les bons salons ou relancer la discussion."
+        return '👋 Bienvenue sur WanaLike ! Tu viens plutôt pour la radio, le dev, le gaming ou juste chiller ?'
+    return '👋 Je suis NovaLike. Je peux t’aider à te repérer, t’orienter vers les bons salons ou relancer la discussion.'
 
 
 @app.post('/discord/message')
 async def discord_message(payload: DiscordMessage):
     if not should_reply(payload):
-        return {
-            'should_reply': False,
-            'reply': ''
-        }
-
-    return {
-        'should_reply': True,
-        'reply': contextual_reply(payload)
-    }
+        return {'should_reply': False, 'reply': ''}
+    return {'should_reply': True, 'reply': contextual_reply(payload)}
 
 
 @app.post('/gpt/send-message')
-async def gpt_send_message(
-    payload: GPTMessage,
-    x_api_token: str = Header(default=''),
-    authorization: str = Header(default='')
-):
+async def gpt_send_message(payload: GPTMessage, x_api_token: str = Header(default=''), authorization: str = Header(default='')):
     bearer = ''
     if authorization.lower().startswith('bearer '):
         bearer = authorization.split(' ', 1)[1].strip()
-
     if x_api_token.strip() != API_TOKEN.strip() and bearer != API_TOKEN.strip():
         raise HTTPException(status_code=401, detail='Invalid API token')
-
-    message_queue.append({
-        'message': payload.message,
-        'channel_id': payload.channel_id
-    })
-
-    return {
-        'status': 'queued',
-        'message': payload.message,
-        'queue_size': len(message_queue)
-    }
+    message_queue.append({'message': payload.message, 'channel_id': payload.channel_id})
+    return {'status': 'queued', 'message': payload.message, 'queue_size': len(message_queue)}
 
 
 @app.post('/gpt/send-message-public')
 async def gpt_send_message_public(payload: GPTPublicMessage):
     if payload.token.strip() != API_TOKEN.strip():
         raise HTTPException(status_code=401, detail='Invalid API token')
-
-    message_queue.append({
-        'message': payload.message,
-        'channel_id': payload.channel_id
-    })
-
-    return {
-        'status': 'queued',
-        'message': payload.message,
-        'queue_size': len(message_queue)
-    }
+    message_queue.append({'message': payload.message, 'channel_id': payload.channel_id})
+    return {'status': 'queued', 'message': payload.message, 'queue_size': len(message_queue)}
 
 
 @app.get('/bot/pending-messages')
-async def bot_pending_messages(
-    x_api_token: str = Header(default=''),
-    authorization: str = Header(default='')
-):
+async def bot_pending_messages(x_api_token: str = Header(default=''), authorization: str = Header(default='')):
     bearer = ''
     if authorization.lower().startswith('bearer '):
         bearer = authorization.split(' ', 1)[1].strip()
-
     if x_api_token.strip() != API_TOKEN.strip() and bearer != API_TOKEN.strip():
         raise HTTPException(status_code=401, detail='Invalid API token')
-
     messages = message_queue.copy()
     message_queue.clear()
-
-    return {
-        'messages': messages,
-        'count': len(messages)
-    }
+    return {'messages': messages, 'count': len(messages)}
