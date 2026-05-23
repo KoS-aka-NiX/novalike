@@ -112,9 +112,14 @@ async def discord_message(payload: DiscordMessage):
 @app.post('/gpt/send-message')
 async def gpt_send_message(
     payload: GPTMessage,
-    x_api_token: str = Header(default='')
+    x_api_token: str = Header(default=''),
+    authorization: str = Header(default='')
 ):
-    if x_api_token != API_TOKEN:
+    bearer = ''
+    if authorization.lower().startswith('bearer '):
+        bearer = authorization.split(' ', 1)[1].strip()
+
+    if x_api_token.strip() != API_TOKEN.strip() and bearer != API_TOKEN.strip():
         raise HTTPException(status_code=401, detail='Invalid API token')
 
     message_queue.append({
@@ -131,9 +136,14 @@ async def gpt_send_message(
 
 @app.get('/bot/pending-messages')
 async def bot_pending_messages(
-    x_api_token: str = Header(default='')
+    x_api_token: str = Header(default=''),
+    authorization: str = Header(default='')
 ):
-    if x_api_token != API_TOKEN:
+    bearer = ''
+    if authorization.lower().startswith('bearer '):
+        bearer = authorization.split(' ', 1)[1].strip()
+
+    if x_api_token.strip() != API_TOKEN.strip() and bearer != API_TOKEN.strip():
         raise HTTPException(status_code=401, detail='Invalid API token')
 
     messages = message_queue.copy()
