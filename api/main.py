@@ -1,5 +1,6 @@
 import os
 import random
+from datetime import datetime, timezone
 from typing import List
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
@@ -10,13 +11,18 @@ load_dotenv()
 API_TOKEN = os.getenv('NOVALIKE_API_TOKEN', '')
 WANALIKE_MARK = chr(60) + ':wanalike:1443556453918048276' + chr(62)
 
+PUBLISHER_ENABLED = os.getenv('PUBLISHER_ENABLED', 'false').lower() == 'true'
+PUBLISHER_API_URL = os.getenv('PUBLISHER_API_URL', '')
+PUBLISHER_DEFAULT_AUTHOR = os.getenv('PUBLISHER_DEFAULT_AUTHOR', 'NovaLike')
+
 app = FastAPI(
     title='NovaLike API',
-    version='0.3.2',
+    version='0.4.0',
     description='API communautaire NovaLike'
 )
 
 message_queue: List[dict] = []
+publisher_drafts: List[dict] = []
 
 
 class DiscordMessage(BaseModel):
@@ -40,9 +46,41 @@ class GPTPublicMessage(BaseModel):
     channel_id: int | None = None
 
 
+class PublisherDraftRequest(BaseModel):
+    title: str
+    body: str
+    source: str = 'novalike'
+    author: str | None = None
+    tags: list[str] = []
+    publish: bool = False
+
+
+class PublisherAnnouncementDraftRequest(BaseModel):
+    title: str
+    message: str
+    target: str = 'discord'
+    source: str = 'novalike'
+    tags: list[str] = []
+
+
 @app.get('/health')
 async def health():
     return {'name': 'NovaLike API', 'status': 'online', 'queue_size': len(message_queue)}
+
+
+@app.get('/health/full')
+async def health_full():
+    return {
+        'name': 'NovaLike API',
+        'status': 'online',
+        'queue_size': len(message_queue),
+        'publisher': {
+            'enabled': PUBLISHER_ENABLED,
+            'api_url': PUBLISHER_API_URL,
+            'drafts_in_memory': len(publisher_drafts)
+        },
+        'time': datetime.now(timezone.utc).isoformat()
+    }
 
 
 def normalize(value: str | None) -> str:
@@ -114,6 +152,26 @@ def contextual_reply(payload: DiscordMessage) -> str:
     return 'Je suis là 👋 Je peux t’aider à te repérer, trouver le bon salon ou relancer un peu la discussion.'
 
 
+def require_token(x_api_token: str, authorization: str = '') -> None:
+    bearer = ''
+    if authorization.lower().startswith('bearer '):
+        bearer = authorization.split(' ', 1)[1].strip()
+    if x_api_token.strip() != API_TOKEN.strip() and bearer != API_TOKEN.strip():
+        raise HTTPException(status_code=401, detail='Invalid API token')
+
+
+def store_publisher_draft(kind: str, payload: dict) -> dict:
+    draft = {
+        'id': len(publisher_drafts) + 1,
+        'kind': kind,
+        'status': 'draft',
+        'created_at': datetime.now(timezone.utc).isoformat(),
+        'payload': payload
+    }
+    publisher_drafts.append(draft)
+    return draft
+
+
 @app.post('/discord/message')
 async def discord_message(payload: DiscordMessage):
     if not should_reply(payload):
@@ -123,11 +181,7 @@ async def discord_message(payload: DiscordMessage):
 
 @app.post('/gpt/send-message')
 async def gpt_send_message(payload: GPTMessage, x_api_token: str = Header(default=''), authorization: str = Header(default='')):
-    bearer = ''
-    if authorization.lower().startswith('bearer '):
-        bearer = authorization.split(' ', 1)[1].strip()
-    if x_api_token.strip() != API_TOKEN.strip() and bearer != API_TOKEN.strip():
-        raise HTTPException(status_code=401, detail='Invalid API token')
+    require_token(x_api_token, authorization)
     message_queue.append({'message': payload.message, 'channel_id': payload.channel_id})
     return {'status': 'queued', 'message': payload.message, 'queue_size': len(message_queue)}
 
@@ -142,11 +196,46 @@ async def gpt_send_message_public(payload: GPTPublicMessage):
 
 @app.get('/bot/pending-messages')
 async def bot_pending_messages(x_api_token: str = Header(default=''), authorization: str = Header(default='')):
-    bearer = ''
-    if authorization.lower().startswith('bearer '):
-        bearer = authorization.split(' ', 1)[1].strip()
-    if x_api_token.strip() != API_TOKEN.strip() and bearer != API_TOKEN.strip():
-        raise HTTPException(status_code=401, detail='Invalid API token')
+    require_token(x_api_token, authorization)
     messages = message_queue.copy()
     message_queue.clear()
     return {'messages': messages, 'count': len(messages)}
+
+
+@app.get('/publisher/status')
+async def publisher_status(x_api_token: str = Header(default=''), authorization: str = Header(default='')):
+    require_token(x_api_token, authorization)
+    return {
+        'enabled': PUBLISHER_ENABLED,
+        'api_url': PUBLISHER_API_URL,
+        'default_author': PUBLISHER_DEFAULT_AUTHOR,
+        'drafts_in_memory': len(publisher_drafts),
+        'mode': 'stub'
+    }
+
+
+@app.post('/publisher/draft')
+async def publisher_draft(payload: PublisherDraftRequest, x_api_token: str = Header(default=''), authorization: str = Header(default='')):
+    require_token(x_api_token, authorization)
+    draft = store_publisher_draft('article', {
+        'title': payload.title,
+        'body': payload.body,
+        'source': payload.source,
+        'author': payload.author or PUBLISHER_DEFAULT_AUTHOR,
+        'tags': payload.tags,
+        'publish': False
+    })
+    return {'status': 'draft_created', 'draft': draft}
+
+
+@app.post('/publisher/announce-draft')
+async def publisher_announce_draft(payload: PublisherAnnouncementDraftRequest, x_api_token: str = Header(default=''), authorization: str = Header(default='')):
+    require_token(x_api_token, authorization)
+    draft = store_publisher_draft('announcement', {
+        'title': payload.title,
+        'message': payload.message,
+        'target': payload.target,
+        'source': payload.source,
+        'tags': payload.tags
+    })
+    return {'status': 'draft_created', 'draft': draft}
