@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: NovaLike API
-  version: 0.2.1
+  version: 0.3.1
   description: API communautaire NovaLike pour connecter GPT, FastAPI et Discord.
 servers:
   - url: https://nova.wanalike.com
@@ -21,6 +21,7 @@ paths:
     post:
       operationId: sendDiscordMessage
       summary: Envoie un message dans le salon Discord configuré via NovaLike
+      description: Utilise le token configuré dans l’authentification de l’action GPT. Le corps JSON ne doit contenir que le message et éventuellement channel_id.
       security:
         - ApiKeyAuth: []
       requestBody:
