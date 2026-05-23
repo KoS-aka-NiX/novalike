@@ -32,6 +32,12 @@ class GPTMessage(BaseModel):
     channel_id: int | None = None
 
 
+class GPTPublicMessage(BaseModel):
+    token: str
+    message: str
+    channel_id: int | None = None
+
+
 @app.get('/health')
 async def health():
     return {
@@ -120,6 +126,23 @@ async def gpt_send_message(
         bearer = authorization.split(' ', 1)[1].strip()
 
     if x_api_token.strip() != API_TOKEN.strip() and bearer != API_TOKEN.strip():
+        raise HTTPException(status_code=401, detail='Invalid API token')
+
+    message_queue.append({
+        'message': payload.message,
+        'channel_id': payload.channel_id
+    })
+
+    return {
+        'status': 'queued',
+        'message': payload.message,
+        'queue_size': len(message_queue)
+    }
+
+
+@app.post('/gpt/send-message-public')
+async def gpt_send_message_public(payload: GPTPublicMessage):
+    if payload.token.strip() != API_TOKEN.strip():
         raise HTTPException(status_code=401, detail='Invalid API token')
 
     message_queue.append({
