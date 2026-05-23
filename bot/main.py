@@ -10,7 +10,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 PREFIX = os.getenv('COMMAND_PREFIX', '!')
 STATUS = os.getenv('BOT_STATUS', 'NovaLike is online')
-API_BASE_URL = os.getenv('API_BASE_URL', 'http://127.0.0.1:8000')
+API_BASE_URL = os.getenv('API_BASE_URL', 'http://127.0.0.1:9010')
 API_TOKEN = os.getenv('NOVALIKE_API_TOKEN', '')
 DEFAULT_CHANNEL_ID = os.getenv('DISCORD_DEFAULT_CHANNEL_ID')
 
@@ -29,9 +29,7 @@ async def poll_api_messages():
             async with httpx.AsyncClient(timeout=15) as client:
                 response = await client.get(
                     f'{API_BASE_URL}/bot/pending-messages',
-                    headers={
-                        'X-API-Token': API_TOKEN
-                    }
+                    headers={'X-API-Token': API_TOKEN}
                 )
 
                 data = response.json()
@@ -63,7 +61,6 @@ async def on_ready():
     )
 
     await bot.change_presence(activity=activity)
-
     bot.loop.create_task(poll_api_messages())
 
 
@@ -86,20 +83,36 @@ async def on_message(message):
         return
 
     try:
+        member_roles = []
+
+        if hasattr(message.author, 'roles'):
+            member_roles = [
+                role.name
+                for role in message.author.roles
+                if role.name != '@everyone'
+            ]
+
         async with httpx.AsyncClient(timeout=10) as client:
             response = await client.post(
                 f'{API_BASE_URL}/discord/message',
                 json={
                     'author': str(message.author),
                     'content': message.content,
-                    'channel': str(message.channel)
+                    'channel': str(message.channel),
+                    'channel_id': message.channel.id,
+                    'guild': str(message.guild.name) if message.guild else None,
+                    'roles': member_roles,
+                    'mentioned': bot.user in message.mentions
                 }
             )
 
             data = response.json()
 
-            if message.content.lower().startswith('nova'):
-                await message.channel.send(data.get('reply', '👋'))
+            if data.get('should_reply'):
+                reply = data.get('reply', '').strip()
+
+                if reply:
+                    await message.channel.send(reply)
 
     except Exception as e:
         print(f'[NovaLike] API error: {e}')
